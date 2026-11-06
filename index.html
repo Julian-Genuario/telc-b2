@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Telc B2 Trainer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500;75..100,700;75..100,800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: Prüfungsbogen — Lesetext links, Antwortbogen rechts; auf dem Handy untereinander */
+:root{
+  --bg:#eef1f5; --paper:#ffffff; --ink:#16213a; --muted:#5b6478; --line:#d6dbe4;
+  --accent:#2340a0; --mark:#ffe36e; --ok:#1f7a4d; --okbg:#e3f4ea; --bad:#b42318; --badbg:#fde8e6;
+  --display:"Archivo",system-ui,sans-serif; --body:"Source Serif 4",Georgia,serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1320; --paper:#161d2c; --ink:#e6e9f0; --muted:#9aa3b5; --line:#2a3346;
+  --accent:#9db0ff; --mark:#5e4f12; --ok:#52c48d; --okbg:#173326; --bad:#ff8577; --badbg:#3a1a18; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1320; --paper:#161d2c; --ink:#e6e9f0; --muted:#9aa3b5; --line:#2a3346;
+  --accent:#9db0ff; --mark:#5e4f12; --ok:#52c48d; --okbg:#173326; --bad:#ff8577; --badbg:#3a1a18; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--display);font-size:15px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px}
+
+header{display:grid;gap:6px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:clamp(30px,5vw,46px);font-weight:800;font-stretch:78%;line-height:1;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1 span{color:var(--accent)}
+.lead{color:var(--muted);max-width:62ch;margin:4px 0 0}
+
+/* Prüfungsübersicht */
+.map{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.mod{background:var(--paper);padding:14px 16px;display:grid;gap:4px;align-content:start}
+.mod b{font-weight:700;font-stretch:85%;font-size:16px}
+.mod .meta{font-family:var(--mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.chip{justify-self:start;font-family:var(--mono);font-size:11px;letter-spacing:.04em;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
+.chip.live{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+.mod.on{box-shadow:inset 0 3px 0 var(--accent)}
+.rule{font-size:13px;color:var(--muted);margin:0}
+.rule strong{color:var(--ink)}
+
+/* Barra de Teil */
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{font:inherit;font-weight:700;font-stretch:85%;background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px 14px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.timer{display:flex;gap:8px;align-items:center;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.timer output{font-size:20px;min-width:5ch}
+.btn{font:inherit;font-weight:700;font-stretch:85%;border-radius:6px;padding:8px 14px;cursor:pointer;border:1px solid var(--line);background:var(--paper);color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+.btn:focus-visible,.tab:focus-visible,.gap:focus-visible,.opt:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* Hoja */
+.sheet{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:860px){.sheet{grid-template-columns:minmax(0,1fr)}}
+.paper{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:24px clamp(16px,3vw,32px)}
+.task{font-family:var(--display);font-size:14px;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:12px;margin:0 0 16px}
+.task b{color:var(--ink)}
+.text{font-family:var(--body);font-size:17px;line-height:1.75;max-width:66ch}
+.text p{margin:0 0 1em}
+.gap{font:inherit;display:inline-flex;align-items:baseline;gap:4px;border:0;border-bottom:2px solid var(--muted);background:transparent;color:var(--ink);padding:0 4px;cursor:pointer;border-radius:3px 3px 0 0}
+.gap .n{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.gap .v{min-width:4ch;font-style:italic;color:var(--muted)}
+.gap.filled .v{font-style:normal;color:var(--ink);font-weight:600}
+.gap.filled{background:var(--mark)}
+.gap.ok{border-color:var(--ok);background:var(--okbg)}
+.gap.bad{border-color:var(--bad);background:var(--badbg)}
+.gap.flash{outline:2px solid var(--accent)}
+
+/* Antwortbogen */
+.answers{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);display:grid;gap:10px}
+@media (max-width:860px){.answers{position:static}}
+.answers h2{font-size:13px;font-family:var(--mono);font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0}
+.rows{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.row{background:var(--paper);padding:10px 12px;display:grid;grid-template-columns:2.4ch minmax(0,1fr);gap:4px 10px;align-items:center}
+.row .num{font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums;color:var(--muted)}
+.opts{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+.opt{font:inherit;font-size:14px;display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:5px;background:transparent;color:var(--ink);padding:4px 10px 4px 6px;cursor:pointer}
+.opt .l{font-family:var(--mono);font-size:11px;width:18px;height:18px;display:grid;place-items:center;border:1px solid var(--muted);border-radius:3px;color:var(--muted)}
+.opt[aria-pressed="true"]{border-color:var(--ink)}
+.opt[aria-pressed="true"] .l{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.opt.right{border-color:var(--ok);background:var(--okbg)}
+.opt.wrong{border-color:var(--bad);background:var(--badbg)}
+select{font:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:5px;background:var(--paper);color:var(--ink);max-width:100%}
+.why{grid-column:2;font-size:13.5px;color:var(--muted);margin:2px 0 0;line-height:1.45}
+.why b{color:var(--ink)}
+.why.ok b{color:var(--ok)} .why.bad b{color:var(--bad)}
+
+.bank{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px 12px;margin:18px 0 0;padding:14px 0 0;border-top:1px dashed var(--line);font-family:var(--body);font-size:16px}
+.bank span{display:flex;gap:8px;align-items:baseline}
+.bank .l{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.bank .used{color:var(--muted);text-decoration:line-through}
+
+.result{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:14px 16px;display:grid;gap:8px}
+.result .big{font-size:26px;font-weight:800;font-stretch:80%;font-variant-numeric:tabular-nums}
+.meter{height:8px;background:var(--line);border-radius:99px;position:relative;overflow:visible}
+.meter i{position:absolute;inset:0 auto 0 0;border-radius:99px;background:var(--accent)}
+.meter .pass{position:absolute;top:-4px;bottom:-4px;left:60%;width:2px;background:var(--ink)}
+.result small{color:var(--muted);font-size:13px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+
+footer{font-size:13px;color:var(--muted);max-width:70ch}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">telc Deutsch B2 · Übungsheft</div>
+    <h1>Prüfungstraining <span>B2</span></h1>
+    <p class="lead">Ejercicios propios con el formato del examen. Consignas en alemán como en la prueba, explicaciones en castellano después de corregir.</p>
+  </header>
+
+  <section aria-label="Estructura del examen" style="display:grid;gap:10px">
+    <div class="map">
+      <div class="mod"><b>Leseverstehen</b><span class="meta">5 Teile · 75 Punkte</span><span class="chip">en preparación</span></div>
+      <div class="mod on"><b>Sprachbausteine</b><span class="meta">2 Teile · 30 Punkte</span><span class="chip live">disponible</span></div>
+      <div class="mod"><b>Hörverstehen</b><span class="meta">3 Teile · 75 Punkte · ~20 min</span><span class="chip">en preparación</span></div>
+      <div class="mod"><b>Schriftlicher Ausdruck</b><span class="meta">1 Brief · 45 Punkte · 30 min</span><span class="chip">en preparación</span></div>
+      <div class="mod"><b>Mündliche Prüfung</b><span class="meta">3 Teile · 75 Punkte · ~15 min</span><span class="chip">en preparación</span></div>
+    </div>
+    <p class="rule">Para aprobar hace falta <strong>60 %</strong> en la parte escrita (135 de 225 puntos) y <strong>60 %</strong> en la oral (45 de 75). Leseverstehen y Sprachbausteine comparten <strong>90 minutos</strong>.</p>
+  </section>
+
+  <section aria-label="Sprachbausteine" style="display:grid;gap:16px">
+    <div class="bar">
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" id="tab-1" aria-selected="true" data-teil="1">Sprachbausteine 1</button>
+        <button class="tab" role="tab" id="tab-2" aria-selected="false" data-teil="2">Sprachbausteine 2</button>
+      </div>
+      <div class="timer" aria-label="Cronómetro">
+        <output id="clock">20:00</output>
+        <button class="btn" id="clockBtn">Iniciar</button>
+        <button class="btn" id="clockReset" title="Volver a 20:00">↺</button>
+      </div>
+    </div>
+
+    <div class="sheet">
+      <article class="paper">
+        <p class="task" id="task"></p>
+        <div class="text" id="text"></div>
+        <div class="bank" id="bank" hidden></div>
+      </article>
+      <aside class="answers">
+        <h2>Antwortbogen</h2>
+        <div class="rows" id="rows"></div>
+        <div class="actions">
+          <button class="btn primary" id="check">Corregir</button>
+          <button class="btn" id="reset">Borrar respuestas</button>
+        </div>
+        <div class="result" id="result" hidden></div>
+      </aside>
+    </div>
+  </section>
+
+  <footer>Textos y ejercicios escritos para esta página, no son material oficial de telc. Tus respuestas quedan guardadas en este navegador.</footer>
+</div>
+
+<script>
+const TEILE = {
+  1: {
+    task: '<b>Sprachbausteine, Teil 1.</b> Lesen Sie den folgenden Text und entscheiden Sie, welches Wort (a, b oder c) in die Lücken 1–10 passt.',
+    text: [
+      'Sehr geehrte Damen und Herren,',
+      'vor drei Wochen habe ich bei Ihnen einen Intensivkurs Deutsch B2 gebucht, {1} am 3. März beginnen sollte. Leider muss ich Ihnen mitteilen, {2} ich mit der Organisation des Kurses überhaupt nicht zufrieden bin.',
+      'Zunächst wurde der Kursbeginn ohne Vorankündigung um eine Woche verschoben. Ich hatte mir extra Urlaub genommen, {3} den Kurs vollständig besuchen zu können. Außerdem war der Raum für 20 Teilnehmende viel zu klein, {4} einige von uns auf dem Flur sitzen mussten.',
+      'Hinzu kommt, dass die Lehrkraft in der ersten Woche dreimal gewechselt hat. {5} alle Lehrerinnen und Lehrer sehr freundlich waren, konnten wir so kaum sinnvoll arbeiten. In Ihrer Broschüre steht, dass der Unterricht „in kleinen Gruppen mit fester Lehrkraft“ stattfindet. Davon {6} in meinem Kurs leider keine Rede sein.',
+      'Ich bitte Sie {7}, mir einen Teil der Kursgebühr zurückzuerstatten oder mir einen kostenlosen Platz in einem späteren Kurs anzubieten. Ich wäre Ihnen dankbar, {8} Sie mir bis Ende des Monats antworten {9}.',
+      'Für Rückfragen stehe ich Ihnen gern zur {10}.',
+      'Mit freundlichen Grüßen<br>Lucas Pereira'
+    ],
+    items: [
+      {o:['das','der','den'], a:1, why:'Pronombre relativo: se refiere a <i>der Intensivkurs</i> (masculino) y es sujeto de <i>beginnen sollte</i>, así que va en nominativo: <b>der</b>.'},
+      {o:['ob','dass','wenn'], a:1, why:'<i>mitteilen, dass …</i>: se informa un hecho. <i>ob</i> sería para algo dudoso, <i>wenn</i> es condicional.'},
+      {o:['damit','ohne','um'], a:2, why:'Finalidad con el mismo sujeto y infinitivo con <i>zu</i>: <b>um … zu</b>. <i>damit</i> pediría verbo conjugado al final.'},
+      {o:['weil','obwohl','sodass'], a:2, why:'Consecuencia: el aula era chica, <i>por lo tanto</i> algunos se sentaron en el pasillo → <b>sodass</b>.'},
+      {o:['Obwohl','Trotzdem','Dennoch'], a:0, why:'La frase tiene el verbo al final (<i>freundlich waren</i>), entonces hace falta un conector subordinante: <b>Obwohl</b>. <i>Trotzdem/Dennoch</i> van con el verbo en segunda posición.'},
+      {o:['muss','darf','kann'], a:2, why:'Expresión fija: <b>Davon kann keine Rede sein</b> = "de eso, ni hablar".'},
+      {o:['trotzdem','deshalb','sonst'], a:1, why:'Es la conclusión de todo lo anterior: <b>deshalb</b> (por eso).'},
+      {o:['dass','wenn','falls'], a:1, why:'Fórmula de carta formal: <b>Ich wäre Ihnen dankbar, wenn Sie …</b>'},
+      {o:['könnten','können','konnten'], a:0, why:'Después de <i>Ich wäre … dankbar, wenn</i> se mantiene el Konjunktiv II de cortesía: <b>könnten</b>. <i>konnten</i> es Präteritum.'},
+      {o:['Seite','Verfügung','Hilfe'], a:1, why:'Fórmula fija: <b>zur Verfügung stehen</b>. Ojo: sería <i>zur Seite stehen</i> sin "für Rückfragen", y suena a otro registro.'}
+    ]
+  },
+  2: {
+    task: '<b>Sprachbausteine, Teil 2.</b> Lesen Sie den Text und entscheiden Sie, welches Wort aus dem Kasten (a–o) in die Lücken 11–20 passt. Jedes Wort passt nur einmal. Nicht alle Wörter werden gebraucht.',
+    text: [
+      '<b>Mit dem Rad ins Büro</b>',
+      'Immer mehr Menschen in deutschen Großstädten fahren mit dem Fahrrad zur Arbeit. Laut einer aktuellen Umfrage nutzt inzwischen fast jeder Dritte das Rad {11} für den Arbeitsweg und nicht nur gelegentlich am Wochenende. Die Gründe sind vielfältig: Viele wollen etwas für ihre Gesundheit tun, andere möchten Geld sparen, {12} die Preise für Benzin und Nahverkehr stark gestiegen sind.',
+      'Die Städte reagieren sehr unterschiedlich {13} diese Entwicklung. Manche investieren Millionen in breite Radwege, {14} andere kaum etwas verändern. Kritiker weisen {15} hin, dass es vor allem in den Innenstädten oft gefährlich bleibt. „Viele Radwege enden plötzlich mitten auf der Straße“, sagt Jana Albers vom Verein Stadtrad. „Wer {16} Kinder hat, überlegt es sich zweimal.“',
+      'Trotzdem sind die meisten Befragten mit ihrer Entscheidung zufrieden. {17} sie im Winter oder bei starkem Regen manchmal das Auto nehmen, wollen sie nicht mehr auf das Rad verzichten. Wichtig sei vor allem, dass die Arbeitgeber mitziehen: Duschen und sichere Abstellplätze machen den Umstieg deutlich {18}. Einige Firmen gehen noch weiter und bieten ihren Mitarbeitenden {19} ein Dienstrad an, das auch privat genutzt werden darf. Fachleute erwarten, dass sich der Trend fortsetzt – {20} die Politik die richtigen Rahmenbedingungen schafft.'
+    ],
+    bank: ['auch wenn','auf','da','darauf','darüber','denn','leichter','regelmäßig','seit','selbst','sofern','sogar','trotzdem','während','worüber'],
+    items: [
+      {a:7,  why:'El contraste "y no solo de vez en cuando" pide un adverbio de frecuencia: <b>regelmäßig</b>.'},
+      {a:2,  why:'Causa con verbo al final (<i>gestiegen sind</i>) → <b>da</b>. <i>denn</i> no sirve: después de <i>denn</i> el verbo va en segunda posición.'},
+      {a:1,  why:'Régimen verbal: <b>reagieren auf</b> + Akkusativ.'},
+      {a:13, why:'Contraste entre dos grupos con verbo al final (<i>verändern</i>): <b>während</b> (mientras que).'},
+      {a:3,  why:'<b>auf etwas hinweisen</b> → cuando sigue una oración con <i>dass</i>, se usa el adverbio preposicional <b>darauf</b>. <i>darüber</i> no va con <i>hinweisen</i>.'},
+      {a:9,  why:'<b>selbst</b> = "uno mismo": quien <i>él mismo</i> tiene hijos.'},
+      {a:0,  why:'Concesión con verbo al final: <b>Auch wenn</b> (aunque). <i>trotzdem</i> pediría el verbo en segunda posición.'},
+      {a:6,  why:'Comparativo después de <i>deutlich</i>: <b>leichter</b> (bastante más fácil).'},
+      {a:11, why:'"van todavía más lejos" anticipa algo que sorprende: <b>sogar</b> (incluso).'},
+      {a:10, why:'Condición con verbo al final: <b>sofern</b> (siempre que).'}
+    ]
+  }
+};
+const LETTERS = 'abcdefghijklmno';
+
+let state = {teil:1, ans:{1:Array(10).fill(null),2:Array(10).fill(null)}, checked:{1:false,2:false}};
+try{ const s = JSON.parse(localStorage.getItem('telcb2-sb')); if(s && s.ans) state = Object.assign(state, s); }catch(e){}
+const save = () => { try{ localStorage.setItem('telcb2-sb', JSON.stringify(state)); }catch(e){} };
+
+const $ = id => document.getElementById(id);
+const offset = t => t === 1 ? 1 : 11;
+const word = (t, i, choice) => choice == null ? null : (t === 1 ? TEILE[1].items[i].o[choice] : TEILE[2].bank[choice]);
+
+function render(){
+  const t = state.teil, T = TEILE[t], ans = state.ans[t], checked = state.checked[t], off = offset(t);
+  document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', String(+b.dataset.teil === t)));
+  $('task').innerHTML = T.task;
+
+  $('text').innerHTML = T.text.map(p => '<p>' + p.replace(/\{(\d+)\}/g, (_, n) => {
+    const i = n - off, w = word(t, i, ans[i]);
+    let cls = 'gap' + (w ? ' filled' : '');
+    if (checked) cls += ans[i] === T.items[i].a ? ' ok' : ' bad';
+    return `<button class="${cls}" data-i="${i}" aria-label="Lücke ${n}"><span class="n">${n}</span><span class="v">${w || '……'}</span></button>`;
+  }) + '</p>').join('');
+
+  const bank = $('bank');
+  if (t === 2){
+    bank.hidden = false;
+    bank.innerHTML = T.bank.map((w, k) => `<span class="${ans.includes(k) ? 'used' : ''}"><span class="l">${LETTERS[k]}</span>${w}</span>`).join('');
+  } else bank.hidden = true;
+
+  $('rows').innerHTML = T.items.map((it, i) => {
+    const n = i + off, sel = ans[i], right = sel === it.a;
+    let control;
+    if (t === 1){
+      control = '<div class="opts">' + it.o.map((o, k) => {
+        let c = 'opt';
+        if (checked && k === it.a) c += ' right';
+        if (checked && k === sel && !right) c += ' wrong';
+        return `<button class="${c}" data-i="${i}" data-k="${k}" aria-pressed="${sel === k}"><span class="l">${LETTERS[k]}</span>${o}</button>`;
+      }).join('') + '</div>';
+    } else {
+      control = `<select id="sel-${n}" data-i="${i}" aria-label="Respuesta ${n}"><option value="">—</option>` +
+        T.bank.map((w, k) => `<option value="${k}" ${sel === k ? 'selected' : ''}>${LETTERS[k]}) ${w}</option>`).join('') + '</select>';
+    }
+    let why = '';
+    if (checked){
+      const head = right ? '<b>Bien.</b> ' : `<b>Correcta: ${LETTERS[it.a]}) ${word(t, i, it.a)}.</b> `;
+      why = `<p class="why ${right ? 'ok' : 'bad'}">${head}${it.why}</p>`;
+    }
+    return `<div class="row" id="row-${n}"><span class="num">${n}</span>${control}${why}</div>`;
+  }).join('');
+
+  const res = $('result');
+  const any = state.checked[1] || state.checked[2];
+  res.hidden = !any;
+  if (any){
+    const score = k => state.checked[k] ? state.ans[k].filter((v, i) => v === TEILE[k].items[i].a).length : null;
+    const s1 = score(1), s2 = score(2);
+    const pts = ((s1 || 0) + (s2 || 0)) * 1.5;
+    const pct = Math.round(pts / 30 * 100);
+    res.innerHTML = `<div class="big">${pts.toLocaleString('es-AR')} / 30 Punkte</div>
+      <div class="meter" role="img" aria-label="${pct}% del máximo"><i style="width:${pct}%"></i><span class="pass" title="60 %"></span></div>
+      <small>Teil 1: ${s1 == null ? 'sin corregir' : s1 + '/10'} · Teil 2: ${s2 == null ? 'sin corregir' : s2 + '/10'} · cada acierto vale 1,5 puntos. La línea marca el 60 %.</small>`;
+  }
+  $('check').textContent = checked ? 'Corregido' : 'Corregir';
+  $('check').disabled = checked;
+}
+
+document.addEventListener('click', e => {
+  const tab = e.target.closest('.tab');
+  if (tab){ state.teil = +tab.dataset.teil; save(); render(); return; }
+  const opt = e.target.closest('.opt');
+  if (opt && !state.checked[1]){ const i = +opt.dataset.i, k = +opt.dataset.k; state.ans[1][i] = state.ans[1][i] === k ? null : k; save(); render(); return; }
+  const gap = e.target.closest('.gap');
+  if (gap){
+    const row = $('row-' + (+gap.dataset.i + offset(state.teil)));
+    row.scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'center'});
+    const ctl = row.querySelector('select, .opt'); if (ctl) ctl.focus({preventScroll:true});
+  }
+});
+document.addEventListener('change', e => {
+  if (e.target.matches('select[data-i]') && !state.checked[2]){
+    const v = e.target.value === '' ? null : +e.target.value, i = +e.target.dataset.i;
+    if (v != null){ const prev = state.ans[2].indexOf(v); if (prev > -1 && prev !== i) state.ans[2][prev] = null; }
+    state.ans[2][i] = v; save(); render();
+  }
+});
+$('check').addEventListener('click', () => { state.checked[state.teil] = true; save(); render(); });
+$('reset').addEventListener('click', () => { const t = state.teil; state.ans[t] = Array(10).fill(null); state.checked[t] = false; save(); render(); });
+
+// Cronómetro: 20 min sugeridos para los dos Teile
+let left = 1200, tick = null;
+const fmt = s => String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+$('clockBtn').addEventListener('click', () => {
+  if (tick){ clearInterval(tick); tick = null; $('clockBtn').textContent = 'Seguir'; return; }
+  $('clockBtn').textContent = 'Pausa';
+  tick = setInterval(() => { left = Math.max(0, left - 1); $('clock').value = fmt(left); if (!left){ clearInterval(tick); tick = null; $('clockBtn').textContent = 'Tiempo'; } }, 1000);
+});
+$('clockReset').addEventListener('click', () => { clearInterval(tick); tick = null; left = 1200; $('clock').value = fmt(left); $('clockBtn').textContent = 'Iniciar'; });
+
+render();
+</script>
+</body>
+</html>
